@@ -40,11 +40,9 @@ const BootcampSchema = new mongoose.Schema({
         type: {
             type: String, 
             enum: ['Point'], 
-            required: true
           },
           coordinates: {
             type: [Number],
-            required: true,
             index: '2dsphere'
           },
         formattedAddress: String,
@@ -55,7 +53,7 @@ const BootcampSchema = new mongoose.Schema({
         country: String
     },
     careers: {
-        type: [string],
+        type: [String],
         require: true,
         enum: [
             'Web Development',
@@ -67,13 +65,13 @@ const BootcampSchema = new mongoose.Schema({
         ]   
     },
     averageRating: {
-        type: string,
+        type: String,
         minlength: [1, 'Rating must be atleast 1'],
         maxlength: [10, 'Rating can not be more than 10']
     },
     averageCost: String,
     photo: {
-        type: Boolean,
+        type: String,
         default: 'no-photo.jpg'
     },
     jobAssistance: {
