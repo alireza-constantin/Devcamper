@@ -69,7 +69,7 @@ const BootcampSchema = new mongoose.Schema({
         minlength: [1, 'Rating must be atleast 1'],
         maxlength: [10, 'Rating can not be more than 10']
     },
-    averageCost: String,
+    averageCost: Number,
     photo: {
         type: String,
         default: 'no-photo.jpg'
@@ -103,7 +103,7 @@ BootcampSchema.pre('save', function(next){
 BootcampSchema.pre('save', async function(next){
     const loc = await geocoder.geocode(this.address);
     this.location = {
-        type: 'point',
+        type: 'Point',
         coordinates: [loc[0].longitude, loc[0].latitude],
         formattedAddress: loc[0].formattedAddress,
         street: loc[0].streetName,
