@@ -8,13 +8,13 @@ const geocoder = require('../utils/geocoder');
 // @route GET api/v1/bootcamps
 // @access public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-    let query
+    let query;
 
     //Copy req.query 
     const reqQuery = {...req.query}
     
     // Fields to exclude
-    const removeFields = ['select', 'sort']
+    const removeFields = ['select', 'sort', 'limit', 'page']
 
     // Loop over removeField and delete them from req.query
     removeFields.forEach(param => delete reqQuery[param]);
@@ -41,9 +41,34 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
     } else {
         query = query.sort('averageCost')
     }
+    // Pagination 
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 25;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const total = await Bootcamp.countDocuments();
+
+    query = query.skip(startIndex).limit(limit);
+
     // Executing query
     const bootcamp = await query;
-    res.status(200).json({ success: true, count: bootcamp.length, data: bootcamp });
+
+    // Pagination result
+    const pagination = {}
+    if( endIndex < total ){
+        pagination.next = {
+            page: page + 1,
+            limit
+        }
+    }
+    if( startIndex > 0) {
+        pagination.previous = {
+            page: page - 1,
+            limit
+        }
+    }
+
+    res.status(200).json({ success: true, count: bootcamp.length, pagination, data: bootcamp });
 
 })
 // @desc  get single bootcamps
@@ -100,6 +125,7 @@ exports.deleteBootcamps = asyncHandler(async (req, res, next) => {
 // @route GET api/v1/bootcamps/radius/:zipcode/:distance
 // @access public
 exports.getBootcampsInRadius = asyncHandler(async (req, res, next) => {
+    
     const { zipcode, distance } = req.params
     const loc = await geocoder.geocode(zipcode);
     const lat = loc[0].latitude;
