@@ -13,6 +13,7 @@ connectDB();
 
 // Route file
 const bootcamps = require('./routes/bootcamps');
+const courses = require('./routes/courses');
 const app = express();
 
 // body parser 
@@ -23,6 +24,7 @@ if(process.env.NODE_ENV === 'development'){
 }
 
 app.use('/api/v1/bootcamps', bootcamps);
+app.use('/api/v1/courses', courses);
 
 // Custom Error Handling
 app.use(errorHandler);
