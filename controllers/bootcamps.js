@@ -2,6 +2,7 @@ const Bootcamp = require('../models/Bootcamp');
 const errorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const geocoder = require('../utils/geocoder');
+const { populate } = require('../models/Bootcamp');
 
 
 // @desc  get all bootcamps
@@ -26,8 +27,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
     querystr = querystr.replace(/\b(lt|lte|gte|gt|in)\b/g, match => `$${match}`);
 
     // Finding resource  
-    query = Bootcamp.find(JSON.parse(querystr));
-     
+    query = Bootcamp.find(JSON.parse(querystr)).populate('courses');     
     // Select fields
     if(req.query.select){
         const fields = req.query.select.split(',').join(' ');
@@ -51,8 +51,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
     query = query.skip(startIndex).limit(limit);
 
     // Executing query
-    const bootcamp = await query;
-
+    const bootcamp = await query
     // Pagination result
     const pagination = {}
     if( endIndex < total ){
