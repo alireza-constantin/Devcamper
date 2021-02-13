@@ -4,71 +4,15 @@ const errorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const geocoder = require('../utils/geocoder');
 const { populate } = require('../models/Bootcamp');
+const advancedResult = require('../middleware/advancedResult');
 
 
 // @desc  get all bootcamps
 // @route GET api/v1/bootcamps
 // @access public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-    let query;
 
-    //Copy req.query 
-    const reqQuery = {...req.query}
-    
-    // Fields to exclude
-    const removeFields = ['select', 'sort', 'limit', 'page']
-
-    // Loop over removeField and delete them from req.query
-    removeFields.forEach(param => delete reqQuery[param]);
-    
-    // Create query string
-    let querystr = JSON.stringify(reqQuery)
-
-    // Create operator ($gt, $lt, etc)
-    querystr = querystr.replace(/\b(lt|lte|gte|gt|in)\b/g, match => `$${match}`);
-
-    // Finding resource  
-    query = Bootcamp.find(JSON.parse(querystr)).populate('courses');     
-    // Select fields
-    if(req.query.select){
-        const fields = req.query.select.split(',').join(' ');
-        query = query.select(fields)
-    }
-
-    // Sort
-    if(req.query.sort){
-        const sortBy = req.query.sort.split(',').join(' ')
-        query = query.sort(sortBy)
-    } else {
-        query = query.sort('averageCost')
-    }
-    // Pagination 
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 25;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    const total = await Bootcamp.countDocuments();
-
-    query = query.skip(startIndex).limit(limit);
-
-    // Executing query
-    const bootcamp = await query
-    // Pagination result
-    const pagination = {}
-    if( endIndex < total ){
-        pagination.next = {
-            page: page + 1,
-            limit
-        }
-    }
-    if( startIndex > 0) {
-        pagination.previous = {
-            page: page - 1,
-            limit
-        }
-    }
-
-    res.status(200).json({ success: true, count: bootcamp.length, pagination, data: bootcamp });
+    res.status(200).json(res.advancedResult);
 
 })
 // @desc  get single bootcamps
