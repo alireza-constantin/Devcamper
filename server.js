@@ -16,6 +16,7 @@ connectDB();
 // Route file
 const bootcamps = require('./routes/bootcamps');
 const courses = require('./routes/courses');
+const users = require('./routes/auth');
 const app = express();
 
 // body parser 
@@ -33,6 +34,7 @@ app.use(fileUpload());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/v1/bootcamps', bootcamps);
 app.use('/api/v1/courses', courses);
+app.use('/api/v1/auth', users);
 
 // Custom Error Handling
 app.use(errorHandler);
