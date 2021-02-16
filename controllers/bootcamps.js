@@ -11,7 +11,7 @@ const advancedResult = require('../middleware/advancedResult');
 // @route GET api/v1/bootcamps
 // @access public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-
+    
     res.status(200).json(res.advancedResult);
 
 })
@@ -31,7 +31,13 @@ exports.getBootcamp = asyncHandler(async (req, res, next) => {
 // @route GET api/v1/bootcamps
 // @access private
 exports.createBootcamps = asyncHandler(async(req, res, next) => {
-        
+    req.body.user = req.user.id
+
+    // Check to see if user has already a bootcamp and is not admin
+    const publishedBootcamp = await Bootcamp.findOne({user: req.user.id});
+    if(publishedBootcamp && req.user.role !== 'admin'){
+        return next(new errorResponse(`User with id ${req.user.id} has already published a bootcamp`))
+    }    
     const bootcamp = await Bootcamp.create(req.body)
     res.status(201).json({ success: true, data: bootcamp})        
 

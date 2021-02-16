@@ -27,7 +27,6 @@ exports.protect = asyncHandler(async (req, res, next)=>{
         const decode = jwt.verify(token, process.env.JWT_SECRET);
         console.log(decode);
         req.user = await User.findById(decode.id);
-        console.log(req.user);
 
         next();
     } catch (error) {
@@ -38,7 +37,6 @@ exports.protect = asyncHandler(async (req, res, next)=>{
 
 exports.authorize = (...roles) =>{
     return (req, res, next) =>{
-        console.log(req.user);
         if(!roles.includes(req.user.role)){
             return next(new errorResponse(`User with -${req.user.role}- role is not authorized to access this route`, 403))
         }
