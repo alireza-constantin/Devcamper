@@ -47,13 +47,20 @@ exports.createBootcamps = asyncHandler(async(req, res, next) => {
 // @access private
 exports.updateBootcamps = asyncHandler(async (req, res, next) => {
     
-    const bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-    })
+    let bootcamp = await Bootcamp.findById(req.params.id)
     if(!bootcamp){
         return next(new errorResponse(`Bootcamp not found with the id of ${req.params.id}`, 404))    
     }
+
+    // Make sure the user is owner of the bootcamp
+    if(bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin'){
+        return next(new errorResponse(`User ${req.user.name} not authorized to update this bootcamp`, 401))    
+    }
+
+    bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+    })
     res.status(200).json({ success: true, data: bootcamp })
 
 });
@@ -66,6 +73,11 @@ exports.deleteBootcamps = asyncHandler(async (req, res, next) => {
     const bootcamp = await Bootcamp.findById(req.params.id)
     if(!bootcamp){
         return next(new errorResponse(`Bootcamp not found with the id of ${req.params.id}`, 404))    
+    }
+
+    // Make sure the user is owner of the bootcamp
+    if(bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin'){
+        return next(new errorResponse(`User ${req.user.name} not authorized to update this bootcamp`, 401))    
     }
 
     await bootcamp.remove();
@@ -106,6 +118,11 @@ exports.uploadPhotoToBootcamps = asyncHandler(async (req, res, next) => {
     const bootcamp = await Bootcamp.findById(req.params.id)
     if(!bootcamp){
         return next(new errorResponse(`Bootcamp not found with the id of ${req.params.id}`, 404))    
+    }
+
+    // Make sure user is owner of the bootcamp
+    if(bootcamp.user.toString() !== req.user.id && req.user.role !== 'admin'){
+        return next(new errorResponse(`User ${req.user.name} not authorized to update this bootcamp`, 401))    
     }
 
     // Check if there is a photo
