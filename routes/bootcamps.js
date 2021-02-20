@@ -14,9 +14,11 @@ const Bootcamp = require('../models/Bootcamp');
 
 //Include course router
 const courseRouter = require('./courses')
+const reviewsRouter = require('./reviews')
 
 // Re-route bootcamps to courses
-router.use('/:bootcampId/courses', courseRouter);
+router.use('/:bootcampId/courses', courseRouter)
+router.use('/:bootcampId/reviews', reviewsRouter);
 
 //bootcamps route 
 router.route('/').get(advancedResult(Bootcamp, 'courses') ,getBootcamps).post(protect, authorize('publisher', 'admin'), createBootcamps);
