@@ -7,15 +7,16 @@ const User = require('../models/User');
 exports.protect = asyncHandler(async (req, res, next)=>{
     let token; 
 
+    // looking for auth in the header 
     if (req.headers.authorization && 
         req.headers.authorization.startsWith('Bearer')){
         token = req.headers.authorization.split(' ')[1];
 
-    }; 
-    
-    /* else if (req.cookies.token){
+    } 
+    // looking for auth in the cookie
+    else if (req.cookies.token){
         token = req.cookies.token
-    } */
+    } 
 
     // Make sure token exists
     if(!token){
@@ -27,7 +28,6 @@ exports.protect = asyncHandler(async (req, res, next)=>{
         const decode = jwt.verify(token, process.env.JWT_SECRET);
         console.log(decode);
         req.user = await User.findById(decode.id);
-
         next();
     } catch (error) {
         return next(new errorResponse(`Not authorized to access this route`, 401))
